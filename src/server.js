@@ -204,7 +204,7 @@ app.get("*", (_req, res) => {
 
 // ── Start server ──
 async function start() {
-  console.log("=== Gas Field RAG – Local Support Agent ===\n");
+  console.log("=== Software Architecture & API RAG – Local Assistant ===\n");
 
   // Register status callback to relay progress to connected UI clients
   engine.onStatus((status) => broadcastStatus(status));
