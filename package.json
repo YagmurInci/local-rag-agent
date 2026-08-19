@@ -1,7 +1,7 @@
 {
-  "name": "gas-field-local-rag",
+  "name": "software-architecture-api-rag",
   "version": "2.0.0",
-  "description": "Offline RAG-powered customer services and technical support agent for gas field inspection and maintenance engineers using Foundry Local",
+  "description": "Offline RAG-powered Software Architecture & API Troubleshooting Assistant for backend engineers and system architects using Foundry Local",
   "type": "module",
   "scripts": {
     "ingest": "node src/ingest.js",
@@ -22,12 +22,12 @@
   "keywords": [
     "rag",
     "offline-ai",
+    "software-architecture",
+    "api-troubleshooting",
+    "microservices",
     "foundry-local",
     "phi-3",
-    "gas-field",
-    "support-agent",
-    "sqlite",
-    "tfidf"
+    "sqlite"
   ],
   "engines": {
     "node": ">=20.0.0"

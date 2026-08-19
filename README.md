@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Offline](https://img.shields.io/badge/Connectivity-100%25%20Offline-brightgreen)]()
 
-# Gas Field Local RAG – Offline Support Agent
+# Software Architecture & API Troubleshooting Assistant – Offline Local RAG
 
-A fully offline, on-device **Retrieval-Augmented Generation (RAG)** support agent for gas field inspection and maintenance engineers. Built with **[Foundry Local](https://foundrylocal.ai)** and **Phi-3.5 Mini Instruct**, this sample shows you how to build a production-style RAG application that runs entirely on your machine: no cloud, no API keys, no internet required.
+A fully offline, on-device **Retrieval-Augmented Generation (RAG)** assistant for software engineers, backend developers, and system architects. Built with **[Foundry Local](https://foundrylocal.ai)** and **Phi-3.5 Mini Instruct**, this sample shows how to build a production-grade local RAG application for API troubleshooting, microservices resilience patterns, database performance, and security debugging—100% on-device with no internet required.
 
 ![Landing Page – Desktop](screenshots/01-landing-page.png)
 
