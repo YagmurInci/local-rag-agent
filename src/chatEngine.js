@@ -44,17 +44,29 @@ export class ChatEngine {
     const catalog = manager.catalog;
 
     this._emitStatus("catalog", "Discovering available models...");
-    this.model = await catalog.getModel(config.model);
-    this.modelAlias = this.model.alias;
+    const baseModel = await catalog.getModel("phi-3.5-mini");
 
-    // The SDK auto-selects the best variant for this hardware (GPU > NPU > CPU)
+    // Doğrudan id'sinde "cpu" geçen varyantı seç
+    let targetVariant = baseModel;
+    if (baseModel.variants && baseModel.variants.length > 0) {
+      const cpuVariant = baseModel.variants.find(v => v.id && v.id.toLowerCase().includes("cpu"));
+
+      if (cpuVariant) {
+        targetVariant = cpuVariant;
+        console.log(`[ChatEngine] Secilen CPU Varyanti: ${targetVariant.id}`);
+      }
+    }
+
+    this.model = targetVariant;
+    this.modelAlias = this.model.id || this.model.alias || "phi-3.5-mini";
+
     this._emitStatus("variant", `Selected model: ${this.modelAlias}`);
 
-    // Download the model if not already cached, with progress reporting
+    // Download the model if not already cached
     if (!this.model.isCached) {
       this._emitStatus("download", `Downloading ${this.modelAlias}... This may take a few minutes on first run.`, 0);
       await this.model.download((progress) => {
-        const pct = Math.round(progress * 100);
+        const pct = Math.min(Math.round(progress * 100), 100);
         this._emitStatus("download", `Downloading ${this.modelAlias}... ${pct}%`, progress);
       });
       this._emitStatus("download", `Download complete.`, 1);
@@ -66,9 +78,9 @@ export class ChatEngine {
     this._emitStatus("loading", `Loading ${this.modelAlias} into memory...`);
     await this.model.load();
 
-    // Create the native chat client with performance settings pre-configured
+    // Create the native chat client
     this.chatClient = this.model.createChatClient();
-    this.chatClient.settings.temperature = 0.1; // Low for deterministic, safety-critical responses
+    this.chatClient.settings.temperature = 0.1;
     this._emitStatus("ready", `Model ready: ${this.modelAlias}`);
 
     // Open the local vector store
