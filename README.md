@@ -5,198 +5,259 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Offline](https://img.shields.io/badge/Connectivity-100%25%20Offline-brightgreen)]()
 
-# Software Architecture & API Troubleshooting Assistant – Offline Local RAG
+# 🌸 Mimari Danışman Mentor – Yazılım Mimarisi & API Sorun Giderme Asistanı
+> **Software Architecture & API Troubleshooting Assistant (Local RAG)**
 
-A fully offline, on-device **Retrieval-Augmented Generation (RAG)** assistant for software engineers, backend developers, and system architects. Built with **[Foundry Local](https://foundrylocal.ai)** and **Phi-3.5 Mini Instruct**, this sample shows how to build a production-grade local RAG application for API troubleshooting, microservices resilience patterns, database performance, and security debugging—100% on-device with no internet required.
+Tamamen çevrimdışı (**100% Offline**), cihaz üzerinde çalışan (**On-Device AI**), **Retrieval-Augmented Generation (RAG)** tabanlı yazılım mimarisi ve API hata giderme asistanı. 
+
+**[Foundry Local](https://foundrylocal.ai)** ve **Phi-3.5 Mini Instruct** modeli ile geliştirilen bu proje; internet bağlantısı, bulut API anahtarı veya abonelik ücreti olmadan cihazınız üzerinde çalışan birebir kıdemli mimarlık mentoru sunar. Sistem yalnızca yerel bilgi tabanından getirilen kaynakları kullanır; yeterli kaynak bulunmadığında uydurma (hallucination) yapmaz ve güvenli fallback yanıtları üretir.
 
 ![Landing Page – Desktop](screenshots/01-landing-page.png)
 
-> **New to RAG?** Retrieval-Augmented Generation is a pattern where an AI model's answers are grounded in a specific set of documents. Instead of relying solely on what the model learned during training, RAG retrieves relevant chunks from your own documents and feeds them to the model as context. This dramatically reduces hallucination and makes the AI useful for domain-specific tasks.
+---
 
-## What You'll Learn
+## ✨ Özellikler (Key Features)
 
-If you're a developer getting started with AI-powered applications, this project demonstrates:
+- 🔒 **Microsoft Foundry Local ile Tamamen Yerel Üretim:** Hiçbir veri dışarı çıkmaz, 100% çevrimdışı cihaz üzerinde çalışır.
+- 🧠 **Phi-3.5 Mini Instruct LLM:** Cihaz içi yüksek mantık ve kod üretme yetenekli küçük dil modeli (SLM).
+- 🗄️ **SQLite + TF-IDF Kosinüs Benzerliği Araması:** Harici vektör veritabanı kurulumu gerektirmeyen, hafif ve ultra hızlı yerel arama.
+- 🎓 **Samimi Mentor Personası (Friendly Lead Architect):** Kuru ve robotik cevaplar yerine konuların altında yatan kök nedenleri, mimari kalıpları ve kopyalanabilir kod örneklerini açıklar.
+- 🎨 **Pembe Pastel UI:** Yumuşak pastel tonları (`#f472b6`, `#fbcfe8`, `#fb7185`), göz yormayan karanlık tema ve dokunmatik uyumlu büyük butonlar.
+- ⚡ **API & Mimari Sorun Giderme:** HTTP 502/504, 429 Rate Limit, CORS, OAuth2/JWT, Connection Pool sızıntıları, Memory Leak, Redis Cache Stampede ve Kafka DLQ kılavuzluğu.
+- ⚡ **Gerçek Zamanlı SSE Yanıt Akışı & Fallback:** Server-Sent Events ile anında kelime kelime yanıt üretimi ve otomatik non-streaming yedekleme servisi.
+- 📄 **Dinamik Doküman Yükleme (TXT / MD Ingestion):** Arayüzden sürükle-bırak ile yeni mimari doküman yükleme ve çalışma zamanında anında indeksleme.
+- 🛡️ **Kaynak ve Benzerlik Skoru Gösterimi:** Üretilen her yanıtın altına doğrulanabilir kaynak doküman adları ve benzerlik skoru kartlarının eklenmesi.
 
-1. **How RAG works end-to-end** – document ingestion, chunking, vector storage, retrieval, and generation
-2. **Running AI models locally** with [Foundry Local](https://foundrylocal.ai) (no GPU required, works on CPU/NPU)
-3. **Building a mobile-responsive web UI** that works in the field (large touch targets, high contrast, PWA-ready)
-4. **Streaming AI responses** using Server-Sent Events (SSE)
-5. **TF-IDF vector search** with SQLite: no external vector database needed
+---
 
-## Architecture
+## 🛠️ Mimari (Architecture)
 
-![Architecture Diagram](screenshots/07-architecture-diagram.png)
+```text
+Kullanıcı Sorusu 
+       ↓
+TF-IDF Kosinüs Benzerliği Araması (SQLite)
+       ↓
+İlgili Kaynak & Bağlam Kontrolü
+       ↓
+Kaynaklı Context + Sistem İstemı (Prompts)
+       ↓
+Foundry Local LLM (Phi-3.5 Mini)
+       ↓
+SSE Streaming / Non-Streaming Yanıt
+       ↓
+Cevap + Doğrulanabilir Kaynak Kartları (% Benzerlik Skoru)
+```
 
-**How a query flows:**
+### Akış Şeması (Sequence Diagram)
 
-![RAG Query Flow](screenshots/08-rag-flow-sequence.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Kullanıcı as 👤 Geliştirici / Mimar
+    participant UI as 📱 Web Arayüzü (index.html)
+    participant Server as 🚀 Express Server (server.js)
+    participant VectorDB as 🗄️ SQLite Vector Store (rag.db)
+    participant AI as 🧠 Foundry Local (Phi-3.5 Mini)
 
-1. The user types a question in the browser
-2. The Express server receives it and searches the SQLite vector store for the most relevant document chunks
-3. Those chunks are injected into the prompt as context
-4. Foundry Local generates a response using Phi-3.5 Mini, grounded in the retrieved context
-5. The response streams back to the browser via SSE
+    Kullanıcı->>UI: Soruyu gönderir (Örn: "504 Gateway Timeout çözümü")
+    UI->>Server: POST /api/chat/stream { message, history }
+    Server->>VectorDB: TF-IDF Kosinüs Benzerliği Araması (topK = 3)
+    VectorDB-->>Server: İlgili mimari doküman parçalarını (chunks) döner
+    Server->>AI: Sistem İstemi + İlgili Dokümanlar + Geçmiş + Soru
+    AI-->>Server: Gerçek zamanlı yanıt akışı (SSE streaming)
+    Server-->>UI: data: { type: "text", data: "..." }
+    UI-->>Kullanıcı: Yanıt ve kaynak doküman kartlarını gösterir
+```
 
-## Features
+---
 
-- **100% offline** – no internet, no cloud, no outbound calls
-- **Safety-first prompting** – safety warnings surface before any procedure
-- **RAG retrieval** – answers grounded in local gas engineering documents
-- **Streaming responses** – real-time SSE streaming to the UI
-- **Mobile responsive** – works on phones, tablets, and desktops in the field
-- **Edge/compact mode** – toggle for extreme latency / constrained devices
-- **Document upload** – add new `.md`/`.txt` documents from the UI at runtime
-- **Field-ready UI** – high contrast, large touch targets, works with gloves/PPE
+## 💻 Teknoloji Yığını (Tech Stack)
 
-| Desktop | Mobile |
-|---------|--------|
-| ![Desktop view](screenshots/01-landing-page.png) | ![Mobile view](screenshots/02-mobile-view.png) |
+- **Dil / Çalışma Zamanı:** JavaScript (ES2022), Node.js (≥ 20)
+- **Sunucu / Web Çatısı:** Express.js
+- **Yerel AI Motoru:** Microsoft Foundry Local SDK (`foundry-local-sdk`)
+- **Yapay Zeka Modeli:** Phi-3.5 Mini Instruct (`phi-3.5-mini-instruct-generic-cpu`)
+- **Yerel Vektör Veritabanı:** SQLite3 (`better-sqlite3`) + TF-IDF Kosinüs Benzerliği
+- **Arayüz:** Single-Page HTML5 / CSS3 (Pink Pastel Theme, Markdown & Syntax Highlighting)
+- **Test Çatısı:** Node.js Native Test Runner (`node:test`)
 
-## Prerequisites
+---
 
-Before you begin, make sure you have:
+## ⚙️ Güncel Ayarlar (Current Settings)
 
-- **Node.js** ≥ 20: [Download here](https://nodejs.org/)
-- **Foundry Local**: Microsoft's on-device AI runtime
-  ```
+| Parametre | Güncel Değer | Açıklama |
+|-----------|--------------|----------|
+| **Varsayılan LLM** | `phi-3.5-mini-instruct` (3.8B) | Cihaz üzerinde çalışan kararlı ve yüksek mantık yetenekli model |
+| **Vektör Arama Motoru** | SQLite TF-IDF Cosine Similarity | Cihaz üzerinde ekstra embedding yükü gerektirmeyen hafif arama |
+| **Chunk Boyutu (Chunk Size)** | ~200 tokens | Optimal bağlam yakalama ve hızlı arama aralığı |
+| **Chunk Örtüşmesi (Chunk Overlap)**| 25 tokens | Bağlantılı cümlelerin kesilmesini önleyen örtüşme |
+| **Top K (En İyi Parça)** | 3 Chunks | Modele beslenen en yüksek alakalı kaynak sayısı |
+| **Sohbet Derinliği (History Limit)**| Son 6 Mesaj | Bağlam şişmesini önleyen sohbet bellek sınırı |
+| **Bilgi Tabanı Boyutu** | 10 Doküman (~21 İndekslenmiş Chunks) | Mimarlık, API sorun giderme ve dayanıklılık kılavuzları |
+
+---
+
+## 📚 Bilgi Tabanı Kapsamı (Knowledge Base Docs)
+
+Projede varsayılan olarak indekslenmiş 10 temel yazılım mimarisi ve API hata giderme kılavuzu yer almaktadır:
+
+| Doküman | Konu Başlığı | Kapsam |
+|---------|--------------|--------|
+| `01-api-error-codes-troubleshooting.md` | API Hata Kodları & Gateway | HTTP 4xx/5xx, 502 Bad Gateway, 504 Gateway Timeout, CORS ve SSL/TLS Handshake |
+| `02-microservices-resilience-patterns.md` | Mikroservis Dayanıklılık Kalıpları | Circuit Breaker, Exponential Backoff with Jitter, Bulkhead ve Fallback stratejileri |
+| `03-authentication-oauth2-jwt-troubleshooting.md` | Kimlik Doğrulama & Güvenlik | OAuth2 Grant Tipleri (PKCE, Client Credentials), JWT Doğrulama, Token Refresh döngüleri |
+| `04-database-connection-pooling-performance.md` | Veritabanı Performansı | Connection Pool sızıntıları (HikariCP/pg-pool), N+1 problemi, Deadlock yönetimi |
+| `05-rate-limiting-throttling-strategies.md` | API Rate Limiting | Token Bucket, Leaky Bucket, Sliding Window ve HTTP 429 Retry-After yanıtları |
+| `06-grpc-vs-rest-vs-graphql-architecture.md` | API Paradigmaları | Protobuf geriye dönük uyumluluk kuralları, GraphQL derinlik sınırı ve REST OpenAPI |
+| `07-memory-leaks-garbage-collection-debugging.md` | Bellek Sızıntısı Teşhisi | Node.js / Java Heap Dump analizi, GC pause süreleri ve Event Loop lag tespiti |
+| `08-caching-redis-strategies.md` | Önbellek & Redis Stratejileri | Cache Stampede (Thundering Herd), Cache Invalidation, Write-Through ve Eviction politikaları |
+| `09-message-queues-event-driven-architecture.md` | Mesaj Kuyrukları & Olay Odaklı Mimari | Kafka/RabbitMQ Dead Letter Queue (DLQ), Idempotent Consumer ve mesaj sırası garantileri |
+| `10-system-architecture-decision-tree.md` | Mimari Karar Ağaçları | Yüksek API gecikmesi, zincirleme 5xx hataları ve bellek sıçramaları için kök neden karar ağacı |
+
+---
+
+## 🖥️ Arayüz Görüntüleri (Screenshots)
+
+| Masaüstü Arayüzü (Desktop) | Mobil Görünüm (Mobile) |
+|----------------------------|------------------------|
+| ![Desktop View](screenshots/01-landing-page.png) | ![Mobile View](screenshots/02-mobile-view.png) |
+
+| Mentor Yanıtı & Kod Örneği | Kaynak Doküman Kartları |
+|----------------------------|-------------------------|
+| ![Chat Response](screenshots/03-chat-response.png) | ![Sources Panel](screenshots/04-sources-panel.png) |
+
+| Dinamik Doküman Yükleme | Mobil Sohbet Deneyimi |
+|-------------------------|-----------------------|
+| ![Upload Document Modal](screenshots/05-upload-document.png) | ![Mobile Chat](screenshots/06-mobile-chat.png) |
+
+---
+
+## 🚀 Kurulum & Çalıştırma (Setup & Usage)
+
+### 1. Gereksinimler (Prerequisites)
+- **Node.js** ≥ 20: [İndirmek için tıklayın](https://nodejs.org/)
+- **Foundry Local**: Microsoft'un cihaz üzerinde çalışan yapay zeka çalışma zamanı
+  ```powershell
   winget install Microsoft.FoundryLocal
   ```
-- The **phi-3.5-mini** model (auto-downloaded on first run via the SDK, approximately 2 GB)
 
-## Quick Start
+Kontrol etmek için:
+```powershell
+foundry --version
+foundry model list
+```
+
+### 2. Kurulum
+```bash
+# Projeyi klonlayın
+git clone https://github.com/YagmurInci/local-rag-agent.git
+cd local-rag-agent
+
+# Bağımlılıkları yükleyin
+npm install
+```
+
+### 3. Bilgi Tabanını İndeksleme (Ingestion)
+`docs/` klasörüne eklenen yeni metin `.md` veya `.txt` dosyalarını veritabanına indekslemek için:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/leestott/local-rag.git
-cd local-rag
-
-# 2. Install dependencies
-npm install
-
-# 3. Ingest the 20 gas engineering documents into the local vector store
 npm run ingest
+```
 
-# 4. Start the server (starts Foundry Local automatically)
+### 4. Sunucuyu ve Arayüzü Başlatma
+```bash
+npm run dev
+# veya prodüksiyon için
 npm start
 ```
+Tarayıcınızda **http://127.0.0.1:3000** adresini açarak mentörünüz ile sohbet etmeye başlayabilirsiniz.
 
-Open **http://127.0.0.1:3000** in a browser. You should see the landing page with quick-action buttons and the chat input.
-
-### What Happens at Startup
-
-1. **`npm run ingest`** reads every `.md` file in `docs/`, splits them into overlapping chunks, computes TF-IDF vectors, and stores everything in `data/rag.db` (SQLite).
-2. **`npm start`** uses the Foundry Local SDK to discover and load the Phi-3.5 Mini model from the local catalog, opens the vector store, and starts the Express server on port 3000.
-
-## Chatting with the Agent
-
-Type a question or tap one of the quick-action buttons. The agent retrieves relevant document chunks and generates a safety-first response:
-
-![Chat response with safety warnings and step-by-step guidance](screenshots/03-chat-response.png)
-
-Every response includes expandable source references so you can verify which documents the answer came from:
-
-![Sources panel showing retrieved documents and relevance scores](screenshots/04-sources-panel.png)
-
-### Mobile Chat
-
-The UI is fully responsive: the same interface works on mobile devices with appropriately sized touch targets:
-
-![Mobile chat view](screenshots/06-mobile-chat.png)
-
-## Uploading Documents
-
-You can expand the knowledge base without restarting the server. Click the 📄 button to open the upload modal:
-
-![Upload document modal with indexed document list](screenshots/05-upload-document.png)
-
-Drag-and-drop or browse for `.md`/`.txt` files. They are chunked and indexed immediately.
-
-### Via File System
-
-1. Add `.md` files to the `docs/` folder (with optional YAML front-matter for title/category/id).
-2. Run `npm run ingest` to re-index all documents.
-
-### Document Format
-
-```markdown
----
-title: My Procedure Title
-category: Inspection Procedures
-id: DOC-CUSTOM-001
 ---
 
-# My Procedure Title
+## 🧪 Birim & Entegrasyon Testleri (Testing)
 
-## Safety Warning
-- Important safety note here.
+Projede sunucu rotaları, vektör arama, doküman parçalama ve sistem istemlerini kapsayan 51 adet bütünüyle otomatik birim testi bulunmaktadır:
 
-## Procedure
-1. Step one.
-2. Step two.
+```bash
+npm test
 ```
 
-## Project Structure
+**Test Çıktısı:**
+```text
+# tests 51
+# suites 12
+# pass 51
+# fail 0
+# duration_ms 580ms
+```
+
+---
+
+## 🔌 API Uç Noktaları (API Endpoints)
+
+| Metot | Uç Nokta | Açıklama |
+|-------|----------|----------|
+| `POST` | `/api/chat/stream` | Gerçek zamanlı SSE yanıt akışı |
+| `POST` | `/api/chat` | Standart yanıt (non-streaming) |
+| `POST` | `/api/upload` | Yeni `.md` veya `.txt` doküman yükleme ve indeksleme |
+| `GET` | `/api/docs` | İndekslenmiş doküman listesini alma |
+| `GET` | `/api/health` | Sunucu ve model sağlık durumu kontrolü |
+
+---
+
+## 📁 Proje Dizin Yapısı (Project Structure)
 
 ```
-LOCAL-RAG/
-├── docs/                     # 20 gas engineering RAG documents
-│   ├── 01-gas-leak-detection.md
-│   ├── 02-regulator-fault-low-pressure.md
-│   ├── 03-emergency-shutdown.md
+LOCAL-RAG-AGENT/
+├── docs/                     # 10 Adet Yazılım Mimarisi & API Hata Giderme Kılavuzu
+│   ├── 01-api-error-codes-troubleshooting.md
+│   ├── 02-microservices-resilience-patterns.md
+│   ├── 03-authentication-oauth2-jwt-troubleshooting.md
 │   ├── ...
-│   └── 20-no-gas-flow-decision-tree.md
+│   └── 10-system-architecture-decision-tree.md
 ├── public/
-│   └── index.html            # Field engineer web UI (single-file, no build step)
+│   └── index.html            # Pembe Pastel temalı, duyarlı (responsive) web UI
 ├── src/
-│   ├── chatEngine.js         # Foundry Local + RAG orchestration
-│   ├── chunker.js            # Document chunking + TF-IDF vector computation
-│   ├── config.js             # App configuration (model, paths, chunk sizes)
-│   ├── ingest.js             # Batch document ingestion script
-│   ├── prompts.js            # System prompts (full + compact/edge)
-│   ├── server.js             # Express server + API endpoints
-│   └── vectorStore.js        # SQLite-backed local vector store
-├── screenshots/              # App screenshots
-├── test/                     # Unit tests (Node.js test runner)
-├── data/                     # Generated at runtime
-│   └── rag.db                # SQLite vector database
+│   ├── chatEngine.js         # Foundry Local SDK + RAG orkestrasyonu
+│   ├── chunker.js            # Doküman parçalama & TF-IDF vektör hesaplama
+│   ├── config.js             # Uygulama yapılandırması (model, yollar, chunk boyutları)
+│   ├── ingest.js             # Doküman indeksleme betiği
+│   ├── prompts.js            # Samimi Mentor sistem istemleri (Full & Dev/Edge mod)
+│   ├── server.js             # Express sunucusu & API uç noktaları
+│   └── vectorStore.js        # SQLite tabanlı yerel vektör deposu
+├── screenshots/              # Ekran görüntüleri ve mimari diyagramlar
+├── test/                     # Node.js test runner ile yazılmış birim testler
+├── data/                     # Çalışma zamanında oluşturulan SQLite DB (rag.db)
 ├── package.json
 └── README.md
 ```
 
-## How the RAG Pipeline Works
+---
 
-Understanding each stage will help you adapt this pattern to your own projects:
+## 🔒 Gizlilik & Veri Güvenliği (Privacy & Security)
 
-### 1. Document Ingestion (`src/ingest.js`)
+- Proje tamamen **yerel çalışma prensibine (On-Device AI)** göre geliştirilmiştir.
+- Dokümanlarınız cihazınızdaki SQLite veritabanında saklanır; girdiğiniz sorular ve üretilen yanıtlar hiçbir bulut sunucusuna veya dış API'ye **gönderilmez**.
 
-Reads `.md` files from `docs/`, parses optional YAML front-matter, then splits the content into overlapping chunks (default: ~200 tokens with 25-token overlap). Each chunk is stored with its TF-IDF vector in SQLite.
+---
 
-### 2. Vector Store (`src/vectorStore.js`)
+## ⚠️ Model Sınırlamaları & Güvenlik Uyarısı
 
-A lightweight vector store backed by SQLite (via `better-sqlite3`). Stores document chunks alongside their TF-IDF vectors. At query time, it cosine-similarity-ranks all chunks against the query vector and returns the top-K results.
+- Yerel küçük dil modelleri (Phi-3.5 Mini), yüz milyarlarca parametreli dev bulut modellerine kıyasla kaynak kısıtlı donanımlarda çalışır.
+- Bu nedenle sistem, yerel RAG veritabanındaki dokümanlara bağlı kalacak şekilde tasarlanmıştır.
 
-### 3. Chat Engine (`src/chatEngine.js`)
+---
 
-Orchestrates the full RAG flow:
-- Converts the user's question into a TF-IDF vector
-- Retrieves the top-K most relevant chunks
-- Builds a prompt with the system instructions + retrieved context + user question
-- Sends it to the local Phi-3.5 Mini model via the OpenAI-compatible API
-- Streams the response back chunk-by-chunk
+## ⚖️ Sorumluluk Reddi (Disclaimer)
 
-### 4. System Prompts (`src/prompts.js`)
+Bu uygulama genel bilgilendirme ve yazılım eğitimi amacıyla geliştirilmiştir. Sunulan mimari öneriler ve kod örnekleri prodüksiyon ortamına alınmadan önce ilgili sistem mühendisliği ekibi tarafından incelenmeli ve test edilmelidir.
 
-Two prompt variants:
-- **Full mode** (~300 tokens): detailed instructions for safety-first, structured responses
-- **Edge mode** (~80 tokens): minimal prompt for constrained devices with limited context windows
+---
 
-## Chunking Strategy
+## 📜 Lisans (License)
 
-The chunking approach is one of the most important design decisions in any RAG system: it directly affects retrieval accuracy, response quality, and performance. This project uses a **fixed-size sliding window with overlap**, and that choice is deliberate.
+Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
 
-### How It Works
-
-Documents are split into chunks of **~200 whitespace-delimited tokens** with a **25-token overlap** between consecutive chunks (configured in [`src/config.js`](src/config.js)). The core logic lives in [`src/chunker.js`](src/chunker.js):
 
 1. YAML front-matter (title, category, id) is stripped and stored as metadata
 2. The body text is tokenized by whitespace
