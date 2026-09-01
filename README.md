@@ -12,7 +12,8 @@ A fully offline (**100% Offline**), on-device (**On-Device AI**), **Retrieval-Au
 
 Built with **[Foundry Local](https://foundrylocal.ai)** and **Phi-3.5 Mini Instruct**, this project provides a dedicated Senior Architecture Mentor right on your computer—with no internet connection, no cloud API keys, and no monthly subscription fees. The system grounds its answers exclusively in your indexed local knowledge base, eliminating hallucinations and ensuring safe fallback responses when insufficient context is found.
 
-![Landing Page – Desktop](screenshots/01-landing-page.png)
+<img width="1917" height="870" alt="image" src="https://github.com/user-attachments/assets/7a8f3e2b-c2e7-4954-9726-c635a0879756" />
+
 
 ---
 
@@ -118,17 +119,17 @@ The pre-indexed knowledge base covers 10 core software architecture and API trou
 
 ## 🖥️ Screenshots
 
-| Desktop UI | Mobile View |
-|------------|-------------|
-| ![Desktop View](screenshots/01-landing-page.png) | ![Mobile View](screenshots/02-mobile-view.png) |
+|          Desktop UI     |
+|-------------------------|
+| <img width="1917" height="870" alt="image" src="https://github.com/user-attachments/assets/4fbc6920-97d2-4d67-9703-274541dd2e80" />          |
 
 | Mentor Response & Code Example | Source Document Cards |
 |--------------------------------|-----------------------|
-| ![Chat Response](screenshots/03-chat-response.png) | ![Sources Panel](screenshots/04-sources-panel.png) |
+| <img width="1919" height="817" alt="image" src="https://github.com/user-attachments/assets/b5b886bb-d274-4297-9dbd-4e9e9f4c4323" />                 | <img width="1919" height="872" alt="image" src="https://github.com/user-attachments/assets/b7a56751-c494-4b40-8ba3-805182040c74" />                          |
 
-| Dynamic Document Upload | Mobile Chat Experience |
-|-------------------------|------------------------|
-| ![Upload Document Modal](screenshots/05-upload-document.png) | ![Mobile Chat](screenshots/06-mobile-chat.png) |
+|             Dynamic Document Upload             |
+|-------------------------------------------------|
+| <img width="1917" height="872" alt="image" src="https://github.com/user-attachments/assets/1fd83e5a-1a37-4942-905c-af2638e47a87" />                                  |
 
 ---
 
